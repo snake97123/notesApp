@@ -1,10 +1,11 @@
-function App() {
+import NotesPage from "./pages/NotesPage";
 
+function App() {
   return (
-    <>
-      NotesApp
-    </>
-  )
+    <div id="app">
+      <NotesPage />
+    </div>
+  );
 }
 
-export default App
+export default App;
