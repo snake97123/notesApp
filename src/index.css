@@ -25,3 +25,43 @@ body {
   position: relative;
   overflow: auto;
 }
+
+.card-header {
+  border-radius: 5px 5px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px;
+}
+
+/* cardの共通のスタイルを設定  */
+.card {
+  border-radius: 0.5em;
+  box-shadow: 0 0 1em rgba(0, 0, 0, 0.5);
+  margin: 1em;
+  cursor: pointer;
+  width: 500px;
+  position: absolute;
+}
+
+.card-body {
+  padding: 1rem;
+  border-radius: 0 0 5px 5px;
+}
+
+.card-body textarea {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background-color: transparent;
+  color: #fff;
+  font-size: 1.5em;
+  resize: none;
+}
+
+textarea:focus {
+  outline: none;
+  background-color: transparent;
+  width: 100%;
+  height: 100%;
+}
