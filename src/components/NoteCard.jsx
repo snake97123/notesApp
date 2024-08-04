@@ -11,6 +11,10 @@ const NoteCard = ({ note }) => {
 
   const textAreaRef = useRef(null);
 
+  // z-indexの状態管理
+  const [zIndex, setZIndex] = useState(1);
+
+  // テキストエリアの高さに合わせてカードの高さを変更する
   useEffect(() => {
     const textArea = textAreaRef.current;
     if (textArea) {
@@ -19,6 +23,7 @@ const NoteCard = ({ note }) => {
     }
   }, [body]);
 
+  // ユーザーの入力に合わせてテキストエリアの高さを変更する
   const handleInput = (event) => {
     const textArea = event.target;
     textArea.style.height = "auto"; // Reset the height
@@ -26,14 +31,21 @@ const NoteCard = ({ note }) => {
   };
 
   const mouseMove = useCallback((event) => {
+    // 現在と移動後のマウスの位置の差分を計算
     const dx = event.clientX - mouseStartPosition.x;
     const dy = event.clientY - mouseStartPosition.y;
 
-    setPosition((prevPosition) => ({
-      x: prevPosition.x + dx,
-      y: prevPosition.y + dy,
-    }));
+    // カードの位置を更新
+    setPosition((prevPosition) => {
+      const newX = Math.max(0, prevPosition.x + dx); // 左端を越えないようにする
+      const newY = Math.max(0, prevPosition.y + dy); // 上端を越えないようにする
+      return {
+        x: newX,
+        y: newY,
+      };
+    });
 
+    // マウスの開始位置を更新
     mouseStartPosition.x = event.clientX;
     mouseStartPosition.y = event.clientY;
   }, []);
@@ -41,6 +53,7 @@ const NoteCard = ({ note }) => {
   const mouseDown = (event) => {
     mouseStartPosition.x = event.clientX;
     mouseStartPosition.y = event.clientY;
+    setZIndex(1000);
 
     document.addEventListener("mousemove", mouseMove);
     document.addEventListener("mouseup", mouseUp);
@@ -49,6 +62,15 @@ const NoteCard = ({ note }) => {
   const mouseUp = () => {
     document.removeEventListener("mousemove", mouseMove);
     document.removeEventListener("mouseup", mouseUp);
+    setZIndex(1);
+  };
+
+  const handleFocus = () => {
+    setZIndex(1000);
+  };
+
+  const handleBlur = () => {
+    setZIndex(1);
   };
 
   return (
@@ -60,6 +82,7 @@ const NoteCard = ({ note }) => {
         position: "absolute",
         left: `${position.x}px`,
         top: `${position.y}px`,
+        zIndex: zIndex,
       }}
     >
       <div
@@ -77,6 +100,8 @@ const NoteCard = ({ note }) => {
           style={{ color: colors.colorText }}
           defaultValue={body}
           onInput={handleInput}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
         ></textarea>
       </div>
     </div>
