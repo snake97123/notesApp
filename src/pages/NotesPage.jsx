@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { db } from "../appwrite/databases";
 // import { fakeData as notes } from "../assets/fakeData";
-import { databases } from "../appwrite/config";
+// import { databases } from "../appwrite/config";
 import NoteCard from "../components/NoteCard";
 
 const NotesPage = () => {

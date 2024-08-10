@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import Trash from "../icons/Trash";
+import { db } from "../appwrite/databases";
 
 const NoteCard = ({ note }) => {
   const bodyParser = (body) => {
-    //  JSON形式で返せるなら返す。できないなら値そのものを返す。
     try {
       return JSON.parse(body);
     } catch (error) {
@@ -15,52 +15,50 @@ const NoteCard = ({ note }) => {
   const [position, setPosition] = useState(JSON.parse(note.position));
   const colors = JSON.parse(note.color);
   let mouseStartPosition = { x: 0, y: 0 };
+  let cardStartPosition = { x: 0, y: 0 };
+  let offset = { x: 0, y: 0 }; // オフセットの初期化
   const cardRef = useRef(null);
-
   const textAreaRef = useRef(null);
-
-  // z-indexの状態管理
   const [zIndex, setZIndex] = useState(1);
 
-  // テキストエリアの高さに合わせてカードの高さを変更する
   useEffect(() => {
     const textArea = textAreaRef.current;
     if (textArea) {
-      textArea.style.height = "auto"; // Reset the height
-      textArea.style.height = `${textArea.scrollHeight}px`; // Set the new height
+      textArea.style.height = "auto";
+      textArea.style.height = `${textArea.scrollHeight}px`;
     }
   }, [body]);
 
-  // ユーザーの入力に合わせてテキストエリアの高さを変更する
   const handleInput = (event) => {
     const textArea = event.target;
-    textArea.style.height = "auto"; // Reset the height
-    textArea.style.height = `${textArea.scrollHeight}px`; // Set the new height
+    textArea.style.height = "auto";
+    textArea.style.height = `${textArea.scrollHeight}px`;
   };
 
-  const mouseMove = useCallback((event) => {
-    // 現在と移動後のマウスの位置の差分を計算
-    const dx = event.clientX - mouseStartPosition.x;
-    const dy = event.clientY - mouseStartPosition.y;
+  const mouseMove = useCallback(
+    (event) => {
+      const dx = event.clientX - mouseStartPosition.x;
+      const dy = event.clientY - mouseStartPosition.y;
 
-    // カードの位置を更新
-    setPosition((prevPosition) => {
-      const newX = Math.max(0, prevPosition.x + dx); // 左端を越えないようにする
-      const newY = Math.max(0, prevPosition.y + dy); // 上端を越えないようにする
-      return {
-        x: newX,
-        y: newY,
-      };
-    });
-
-    // マウスの開始位置を更新
-    mouseStartPosition.x = event.clientX;
-    mouseStartPosition.y = event.clientY;
-  }, []);
+      setPosition({
+        x: cardStartPosition.x + dx - offset.x, // オフセットを考慮
+        y: cardStartPosition.y + dy - offset.y, // オフセットを考慮
+      });
+    },
+    [offset]
+  );
 
   const mouseDown = (event) => {
+    const card = cardRef.current;
     mouseStartPosition.x = event.clientX;
     mouseStartPosition.y = event.clientY;
+    cardStartPosition.x = position.x;
+    cardStartPosition.y = position.y;
+
+    // オフセットを計算
+    offset.x = mouseStartPosition.x - card.getBoundingClientRect().left;
+    offset.y = mouseStartPosition.y - card.getBoundingClientRect().top;
+
     setZIndex(1000);
 
     document.addEventListener("mousemove", mouseMove);
@@ -71,6 +69,11 @@ const NoteCard = ({ note }) => {
     document.removeEventListener("mousemove", mouseMove);
     document.removeEventListener("mouseup", mouseUp);
     setZIndex(1);
+    const newPosition = {
+      x: cardRef.current.offsetLeft,
+      y: cardRef.current.offsetTop,
+    };
+    savePositionToDatabase(newPosition);
   };
 
   const handleFocus = () => {
@@ -79,6 +82,17 @@ const NoteCard = ({ note }) => {
 
   const handleBlur = () => {
     setZIndex(1);
+  };
+
+  const savePositionToDatabase = async (newPosition) => {
+    try {
+      await db.notes.update(note.$id, {
+        position: JSON.stringify(newPosition),
+      });
+      console.log("Position updated");
+    } catch (error) {
+      console.error("Error updating position", error);
+    }
   };
 
   return (
