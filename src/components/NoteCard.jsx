@@ -1,11 +1,19 @@
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import Trash from "../icons/Trash";
 
 const NoteCard = ({ note }) => {
-  const body = JSON.parse(note.body);
-  const [position, setPosition] = useState(JSON.parse(note.position));
-  const colors = JSON.parse(note.colors);
+  const bodyParser = (body) => {
+    //  JSON形式で返せるなら返す。できないなら値そのものを返す。
+    try {
+      return JSON.parse(body);
+    } catch (error) {
+      return body;
+    }
+  };
 
+  const body = bodyParser(note.body);
+  const [position, setPosition] = useState(JSON.parse(note.position));
+  const colors = JSON.parse(note.color);
   let mouseStartPosition = { x: 0, y: 0 };
   const cardRef = useRef(null);
 
