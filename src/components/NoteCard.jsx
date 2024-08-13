@@ -73,7 +73,19 @@ const NoteCard = ({ note }) => {
       x: cardRef.current.offsetLeft,
       y: cardRef.current.offsetTop,
     };
-    savePositionToDatabase(newPosition);
+    saveData("position", newPosition);
+    // savePositionToDatabase(newPosition);
+  };
+
+  const saveData = async (key, value) => {
+    // []をつけないと文字列として扱われる。
+    const payload = { [key]: JSON.stringify(value) };
+
+    try {
+      await db.notes.update(note.$id, payload);
+    } catch (error) {
+      console.error("Error updating note", error);
+    }
   };
 
   const handleFocus = () => {
@@ -82,17 +94,6 @@ const NoteCard = ({ note }) => {
 
   const handleBlur = () => {
     setZIndex(1);
-  };
-
-  const savePositionToDatabase = async (newPosition) => {
-    try {
-      await db.notes.update(note.$id, {
-        position: JSON.stringify(newPosition),
-      });
-      console.log("Position updated");
-    } catch (error) {
-      console.error("Error updating position", error);
-    }
   };
 
   return (
