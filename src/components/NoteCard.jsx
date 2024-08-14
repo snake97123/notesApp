@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import Trash from "../icons/Trash";
+import Spinner from "../icons/Spinner";
 import { db } from "../appwrite/databases";
 
 const NoteCard = ({ note }) => {
@@ -12,6 +13,8 @@ const NoteCard = ({ note }) => {
   };
 
   const body = bodyParser(note.body);
+  const [saving, setSaving] = useState(false);
+  const keyUpTimer = useRef(null);
   const [position, setPosition] = useState(JSON.parse(note.position));
   const colors = JSON.parse(note.color);
   let mouseStartPosition = { x: 0, y: 0 };
@@ -74,7 +77,6 @@ const NoteCard = ({ note }) => {
       y: cardRef.current.offsetTop,
     };
     saveData("position", newPosition);
-    // savePositionToDatabase(newPosition);
   };
 
   const saveData = async (key, value) => {
@@ -86,6 +88,8 @@ const NoteCard = ({ note }) => {
     } catch (error) {
       console.error("Error updating note", error);
     }
+
+    setSaving(false);
   };
 
   const handleFocus = () => {
@@ -94,6 +98,20 @@ const NoteCard = ({ note }) => {
 
   const handleBlur = () => {
     setZIndex(1);
+  };
+
+  // キーが離されたときにデータを保存する
+  const handleKeyUp = () => {
+    setSaving(true);
+
+    // 何回もsetTimeOutが呼ばれるのを防ぐ
+    if (keyUpTimer.current) {
+      clearTimeout(keyUpTimer.current);
+    }
+
+    keyUpTimer.current = setTimeout(() => {
+      saveData("body", textAreaRef.current.value);
+    }, 2000);
   };
 
   return (
@@ -116,9 +134,16 @@ const NoteCard = ({ note }) => {
         }}
       >
         <Trash />
+        {saving && (
+          <div className="saving">
+            <Spinner color={colors.colorText} />
+            <span style={{ color: colors.colorText }}>Saving...</span>
+          </div>
+        )}
       </div>
       <div className="card-body">
         <textarea
+          onKeyUp={handleKeyUp}
           ref={textAreaRef}
           style={{ color: colors.colorText }}
           defaultValue={body}
