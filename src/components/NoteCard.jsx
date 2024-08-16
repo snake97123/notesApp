@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import Trash from "../icons/Trash";
+import DeleteButton from "./DeleteButton";
 import Spinner from "../icons/Spinner";
 import { db } from "../appwrite/databases";
 
-const NoteCard = ({ note }) => {
+const NoteCard = ({ note, setNotes }) => {
   const bodyParser = (body) => {
     try {
       return JSON.parse(body);
@@ -52,20 +52,22 @@ const NoteCard = ({ note }) => {
   );
 
   const mouseDown = (event) => {
-    const card = cardRef.current;
-    mouseStartPosition.x = event.clientX;
-    mouseStartPosition.y = event.clientY;
-    cardStartPosition.x = position.x;
-    cardStartPosition.y = position.y;
+    if (event.target.className === "card-header") {
+      const card = cardRef.current;
+      mouseStartPosition.x = event.clientX;
+      mouseStartPosition.y = event.clientY;
+      cardStartPosition.x = position.x;
+      cardStartPosition.y = position.y;
 
-    // オフセットを計算
-    offset.x = mouseStartPosition.x - card.getBoundingClientRect().left;
-    offset.y = mouseStartPosition.y - card.getBoundingClientRect().top;
+      // オフセットを計算
+      offset.x = mouseStartPosition.x - card.getBoundingClientRect().left;
+      offset.y = mouseStartPosition.y - card.getBoundingClientRect().top;
 
-    setZIndex(1000);
+      setZIndex(1000);
 
-    document.addEventListener("mousemove", mouseMove);
-    document.addEventListener("mouseup", mouseUp);
+      document.addEventListener("mousemove", mouseMove);
+      document.addEventListener("mouseup", mouseUp);
+    }
   };
 
   const mouseUp = () => {
@@ -133,7 +135,7 @@ const NoteCard = ({ note }) => {
           backgroundColor: colors.colorHeader,
         }}
       >
-        <Trash />
+        <DeleteButton setNotes={setNotes} noteId={note.$id} />
         {saving && (
           <div className="saving">
             <Spinner color={colors.colorText} />
