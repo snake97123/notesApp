@@ -3,7 +3,7 @@ import DeleteButton from "./DeleteButton";
 import Spinner from "../icons/Spinner";
 import { db } from "../appwrite/databases";
 
-const NoteCard = ({ note, setNotes }) => {
+const NoteCard = ({ note }) => {
   const bodyParser = (body) => {
     try {
       return JSON.parse(body);
@@ -135,7 +135,7 @@ const NoteCard = ({ note, setNotes }) => {
           backgroundColor: colors.colorHeader,
         }}
       >
-        <DeleteButton setNotes={setNotes} noteId={note.$id} />
+        <DeleteButton noteId={note.$id} />
         {saving && (
           <div className="saving">
             <Spinner color={colors.colorText} />
