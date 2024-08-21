@@ -85,3 +85,33 @@ textarea:focus {
   width: 100%;
   height: 100%;
 }
+.add-btn {
+  position: fixed;
+  bottom: 1em;
+  right: 1em;
+  background-color: #f50057;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  font-size: 2em;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.add-btn:hover {
+  background-color: #ff4081;
+}
+
+.controls {
+  display: flex;
+  justify-content: center;
+  gap: 1em;
+  margin-top: 1em;
+  z-index: 1000;
+}
+
+/* 8/21は1:29:39あたりからスタート */
