@@ -2,6 +2,8 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import DeleteButton from "./DeleteButton";
 import Spinner from "../icons/Spinner";
 import { db } from "../appwrite/databases";
+import { useContext } from "react";
+import { NoteContext } from "../context/NoteContext";
 
 const NoteCard = ({ note }) => {
   const bodyParser = (body) => {
@@ -15,6 +17,7 @@ const NoteCard = ({ note }) => {
   const body = bodyParser(note.body);
   const [saving, setSaving] = useState(false);
   const keyUpTimer = useRef(null);
+  const { setSelectedNote } = useContext(NoteContext);
   const [position, setPosition] = useState(JSON.parse(note.position));
   const colors = JSON.parse(note.color);
   let mouseStartPosition = { x: 0, y: 0 };
@@ -64,6 +67,7 @@ const NoteCard = ({ note }) => {
       offset.y = mouseStartPosition.y - card.getBoundingClientRect().top;
 
       setZIndex(1000);
+      setSelectedNote(note);
 
       document.addEventListener("mousemove", mouseMove);
       document.addEventListener("mouseup", mouseUp);
@@ -96,6 +100,7 @@ const NoteCard = ({ note }) => {
 
   const handleFocus = () => {
     setZIndex(1000);
+    setSelectedNote(note);
   };
 
   const handleBlur = () => {
